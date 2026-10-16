@@ -19,10 +19,12 @@ function App() {
     const result = await submitQuery(query);
     const formattedDocuments: Movie[] = [];
 
+    const distances = result.distances[0].map((d) => (1 - d + 1) / 2);
+
     for (let i = 0; i < result.ids[0].length; i++) {
       formattedDocuments.push({
         id: result.ids[0][i],
-        distance: result.distances[0][i],
+        distance: distances[i],
         title: result.metadatas[0][i].title as string,
         tags: (result.metadatas[0][i].tags as string).split(", "),
         synopsis: result.metadatas[0][i].synopsis as string,
