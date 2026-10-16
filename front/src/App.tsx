@@ -1,19 +1,17 @@
-import { ChromaClient, type Collection } from "chromadb";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import "./App.css";
 import MovieCard from "./components/MovieCard";
+import { useChroma } from "./hooks/useChroma";
 import { useQuery } from "./hooks/useQuery";
 import type { Movie } from "./types";
 
 function App() {
-  const [chromaCollection, setChromaCollection] = useState<Collection | null>(
-    null,
-  );
-  const [isConnected, setIsConnected] = useState(false);
-  const [recommendedMovies, setRecommendedMovies] = useState<Movie[]>([]);
+  const { chromaCollection, isConnected } = useChroma();
   const { isLoading, isError, submitQuery, query, setQuery } = useQuery({
     collection: chromaCollection,
   });
+
+  const [recommendedMovies, setRecommendedMovies] = useState<Movie[]>([]);
 
   const queryDatabase = async () => {
     const result = await submitQuery(query);
@@ -33,24 +31,6 @@ function App() {
 
     setRecommendedMovies(formattedDocuments);
   };
-
-  useEffect(() => {
-    const initializeChroma = async () => {
-      try {
-        const chromaClient = new ChromaClient();
-        const collection = await chromaClient.getOrCreateCollection({
-          name: "movies",
-        });
-
-        setChromaCollection(collection);
-        setIsConnected(true);
-      } catch (error) {
-        setIsConnected(false);
-      }
-    };
-
-    initializeChroma();
-  }, []);
 
   const shouldRenderResults = !isError && !isLoading;
 
