@@ -62,6 +62,12 @@ function App() {
           placeholder="type here your query to search for simmilar movies"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(e) => {
+            const key = e.code;
+            if (key === "Enter") {
+              queryDatabase();
+            }
+          }}
         />
         <button
           type="button"

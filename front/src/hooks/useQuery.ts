@@ -13,6 +13,7 @@ export function useQuery({ collection }: { collection: Collection | null }) {
     setIsError(false);
     try {
       const result = await collection.query({ queryTexts: [query] });
+      setQuery("");
       return result;
     } catch (error) {
       setIsError(true);
