@@ -1,6 +1,6 @@
 .page-container {
   margin: 0 auto;
-  max-width: 80%;
+  width: 80%;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -30,20 +30,24 @@
 .movie-card {
   padding: 1rem;
   border: 1px solid #cccccc;
-  height: 250px;
+  height: 350px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 0.5rem;
   border-radius: 10px;
+  text-align: justify;
 }
 
 .movie-card p {
   overflow: auto;
+  word-break: break-all;
+  padding-right: 10px;
 }
 
 .tags {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.25rem;
 }
 
