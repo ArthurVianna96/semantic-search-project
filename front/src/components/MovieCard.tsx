@@ -25,7 +25,7 @@ export default function MovieCard({
     : null;
 
   return (
-    <article className="movie-card" aria-label={title}>
+    <article className="movie-card" data-expanded={expanded} aria-label={title}>
       <div className="movie-poster">
         {hasPoster ? (
           <img
@@ -96,6 +96,16 @@ export default function MovieCard({
             ))}
           </div>
         )}
+        {isLoading && (
+          <p className="movie-status" role="status">
+            Loading movie details…
+          </p>
+        )}
+        {isError && (
+          <p className="movie-status">Additional movie details unavailable.</p>
+        )}
+      </div>
+      <div className="movie-description">
         <p
           id={synopsisId}
           className="movie-synopsis"
@@ -113,14 +123,6 @@ export default function MovieCard({
           >
             {expanded ? "Show less" : "Read full synopsis"}
           </button>
-        )}
-        {isLoading && (
-          <p className="movie-status" role="status">
-            Loading movie details…
-          </p>
-        )}
-        {isError && (
-          <p className="movie-status">Additional movie details unavailable.</p>
         )}
       </div>
     </article>
