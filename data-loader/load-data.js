@@ -3,7 +3,7 @@ import csv from "csv-parser";
 import fs from "fs";
 
 const chromaClient = new ChromaClient();
-const collection = await chromaClient.getOrCreateCollection({ name: "movies" });
+const collection = await chromaClient.getOrCreateCollection({ name: "movies_chroma_default_embedding" });
 
 const ids = [];
 const documents = [];
