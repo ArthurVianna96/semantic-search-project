@@ -104,3 +104,14 @@
 
 .movie-scores { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 0.5rem; flex-shrink: 0; }
 .movie-match { border: 1px solid var(--accent-border); box-sizing: border-box; }
+
+.embedding-switch { margin: 0; padding: 0; border: 0; text-align: left; }
+.embedding-switch legend { margin-bottom: 0.5rem; font-size: 0.75rem; }
+.embedding-options { display: inline-flex; flex-wrap: wrap; gap: 0.25rem; padding: 0.25rem; border: 1px solid var(--border); border-radius: 10px; background: var(--social-bg); }
+.embedding-option { position: relative; cursor: pointer; }
+.embedding-option input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.embedding-option span { display: block; padding: 0.45rem 0.85rem; border-radius: 6px; font-size: 0.8rem; }
+.embedding-option input:checked + span { background: var(--accent-bg); color: var(--text-h); box-shadow: inset 0 0 0 1px var(--accent-border); }
+.embedding-option input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+.embedding-switch:disabled { opacity: 0.5; }
+.embedding-switch:disabled .embedding-option { cursor: wait; }

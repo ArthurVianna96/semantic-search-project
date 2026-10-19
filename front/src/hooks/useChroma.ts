@@ -1,29 +1,26 @@
 import { ChromaClient, type Collection } from "chromadb";
 import { useEffect, useState } from "react";
 
-export function useChroma() {
-  const [chromaCollection, setChromaCollection] = useState<Collection | null>(
-    null,
-  );
-  const [isConnected, setIsConnected] = useState(false);
+export function useChroma({ collectionName }: { collectionName: string }) {
+  const [connection, setConnection] = useState<{
+    name: string;
+    collection: Collection;
+  } | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
     const initializeChroma = async () => {
       try {
-        const chromaClient = new ChromaClient();
-        const collection = await chromaClient.getOrCreateCollection({
-          name: "movies",
-        });
-
-        setChromaCollection(collection);
-        setIsConnected(true);
-      } catch (error) {
-        setIsConnected(false);
+        const collection = await new ChromaClient().getCollection({ name: collectionName });
+        if (!cancelled) setConnection({ name: collectionName, collection });
+      } catch {
+        if (!cancelled) setConnection(null);
       }
     };
-
     initializeChroma();
-  }, []);
+    return () => { cancelled = true; };
+  }, [collectionName]);
 
-  return { chromaCollection, isConnected };
+  const chromaCollection = connection?.name === collectionName ? connection.collection : null;
+  return { chromaCollection, isConnected: chromaCollection !== null };
 }

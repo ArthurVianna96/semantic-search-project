@@ -5,8 +5,22 @@ import { useChroma } from "./hooks/useChroma";
 import { useQuery } from "./hooks/useQuery";
 import type { Movie } from "./types";
 
+export const EMBEDDINGS_TYPE = {
+  gemini: {
+    collectionName: "movies-gemini-embedding-2",
+    embeddingType: "gemini",
+  },
+  chroma_default: {
+    collectionName: "movies_chroma_default_embedding",
+    embeddingType: "chroma_default",
+  },
+};
+
 function App() {
-  const { chromaCollection, isConnected } = useChroma();
+  const [embeddingType, setEmbeddingType] = useState(EMBEDDINGS_TYPE["gemini"]);
+  const { chromaCollection, isConnected } = useChroma({
+    collectionName: embeddingType.collectionName,
+  });
   const { isLoading, isError, submitQuery, query, setQuery } = useQuery({
     collection: chromaCollection,
   });
@@ -14,22 +28,18 @@ function App() {
   const [recommendedMovies, setRecommendedMovies] = useState<Movie[]>([]);
 
   const queryDatabase = async () => {
-    const result = await submitQuery(query);
-    const formattedDocuments: Movie[] = [];
+    if (!isConnected || isLoading || !query.trim()) return;
+    const movies = await submitQuery(query, {
+      embeddingType:
+        embeddingType.embeddingType as keyof typeof EMBEDDINGS_TYPE,
+    });
 
-    const distances = result.distances[0].map((d) => (1 - d + 1) / 2);
+    setRecommendedMovies(movies ?? []);
+  };
 
-    for (let i = 0; i < result.ids[0].length; i++) {
-      formattedDocuments.push({
-        id: result.ids[0][i],
-        distance: distances[i],
-        title: result.metadatas[0][i].title as string,
-        tags: (result.metadatas[0][i].tags as string).split(", "),
-        synopsis: result.metadatas[0][i].synopsis as string,
-      });
-    }
-
-    setRecommendedMovies(formattedDocuments);
+  const changeEmbeddingType = (type: keyof typeof EMBEDDINGS_TYPE) => {
+    setEmbeddingType(EMBEDDINGS_TYPE[type]);
+    setRecommendedMovies([]);
   };
 
   const shouldRenderResults = !isError && !isLoading;
@@ -37,14 +47,32 @@ function App() {
   return (
     <div className="page-container">
       <h1>Movie Recommender</h1>
-      <form className="query-form">
+      <form className="query-form" onSubmit={(event) => { event.preventDefault(); queryDatabase(); }}>
+        <fieldset className="embedding-switch" disabled={isLoading}>
+          <legend>Embedding model</legend>
+          <div className="embedding-options">
+            {(["gemini", "chroma_default"] as const).map((type) => (
+              <label key={type} className="embedding-option">
+                <input
+                  type="radio"
+                  name="embedding-model"
+                  value={type}
+                  checked={embeddingType.embeddingType === type}
+                  onChange={() => changeEmbeddingType(type)}
+                />
+                <span>{type === "gemini" ? "Gemini" : "Chroma default"}</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
         <textarea
           placeholder="type here your query to search for simmilar movies"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => {
             const key = e.code;
-            if (key === "Enter") {
+            if (key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
+              e.preventDefault();
               queryDatabase();
             }
           }}
@@ -52,7 +80,7 @@ function App() {
         <button
           type="button"
           onClick={queryDatabase}
-          disabled={!isConnected || isLoading}
+          disabled={!isConnected || isLoading || !query.trim()}
         >
           Submit
         </button>
